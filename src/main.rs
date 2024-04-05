@@ -1,6 +1,6 @@
 use std::thread;
 
-use rand::{distributions::{Distribution, Uniform}, rngs::OsRng, thread_rng, Rng};
+use rand::{distributions::{Distribution, Uniform}, thread_rng};
 
 fn main() {
     let uniform = Uniform::new_inclusive(-1f64, 1f64);
