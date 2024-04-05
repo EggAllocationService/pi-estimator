@@ -1,26 +1,42 @@
-use rand::{rngs::OsRng, Rng};
+use std::thread;
 
-
-
+use rand::{distributions::{Distribution, Uniform}, thread_rng};
 
 fn main() {
-    let mut rng = OsRng;
-
-    let mut in_circle: f64 = 0.0;
-    let mut out_circle: f64 = 0.0;
+    let uniform = Uniform::new_inclusive(-1f64, 1f64);
 
     let iters: u64 = std::env::args().nth(1).unwrap().parse().unwrap();
-    for _ in 0..iters {
-        let x = rng.gen_range(-1f64..1f64);
-        let y = rng.gen_range(-1f64..1f64);
+    let iters_per_thread = iters / num_cpus::get() as u64;
+    
+    let mut handles = Vec::new();
 
-        if x * x + y * y <= 1.0 {
-            in_circle += 1.0;
-        } else {
-            out_circle += 1.0;
-        }
+    for _ in 0..num_cpus::get() {
+        let handle = thread::spawn(move || {
+            let mut rng = thread_rng();
+            let mut num_in: u64  = 0;
+            let mut num_out: u64 = 0;
+            for _ in 0..iters_per_thread {
+                let x = uniform.sample(&mut rng);
+                let y = uniform.sample(&mut rng);
+
+                if x * x + y * y <= 1.0 {
+                    num_in += 1;
+                } else {
+                    num_out += 1;
+                }
+            }
+            (num_in, num_out) // return result from thread
+        });
+        handles.push(handle);
     }
 
-    let pi = 4.0 * in_circle / (in_circle + out_circle);
+    let res = handles.into_iter()
+        .map(|h| h.join().unwrap())
+        .fold((0, 0), |(a, b), (c, d)| (a + c, b + d));
+
+    let actual_inside = res.0 as f64;
+    let actual_outside = res.1 as f64;
+
+    let pi = 4.0 * actual_inside / (actual_inside + actual_outside);
     println!("π ≈ {}", pi);
 }
