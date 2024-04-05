@@ -1,10 +1,6 @@
-use std::{sync::{atomic::{AtomicU64, Ordering}, Arc}, thread};
+use std::thread;
 
-use num_cpus::get;
 use rand::{rngs::OsRng, Rng};
-
-
-
 
 fn main() {
     let mut rng = OsRng;
