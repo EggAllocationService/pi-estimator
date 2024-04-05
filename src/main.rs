@@ -6,9 +6,10 @@ fn main() {
     let uniform = Uniform::new_inclusive(-1f64, 1f64);
 
     let iters: u64 = std::env::args().nth(1).unwrap().parse().unwrap();
-
     let iters_per_thread = iters / num_cpus::get() as u64;
+    
     let mut handles = Vec::new();
+
     for _ in 0..num_cpus::get() {
         let handle = thread::spawn(move || {
             let mut rng = thread_rng();
