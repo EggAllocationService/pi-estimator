@@ -1,9 +1,9 @@
 use std::thread;
 
-use rand::{rngs::OsRng, Rng};
+use rand::{distributions::{Distribution, Uniform}, rngs::OsRng, thread_rng, Rng};
 
 fn main() {
-    let mut rng = OsRng;
+    let uniform = Uniform::new_inclusive(-1f64, 1f64);
 
     let iters: u64 = std::env::args().nth(1).unwrap().parse().unwrap();
 
@@ -11,11 +11,12 @@ fn main() {
     let mut handles = Vec::new();
     for _ in 0..num_cpus::get() {
         let handle = thread::spawn(move || {
+            let mut rng = thread_rng();
             let mut num_in: u64  = 0;
             let mut num_out: u64 = 0;
             for _ in 0..iters_per_thread {
-                let x = rng.gen_range(-1f64..1f64);
-                let y = rng.gen_range(-1f64..1f64);
+                let x = uniform.sample(&mut rng);
+                let y = uniform.sample(&mut rng);
 
                 if x * x + y * y <= 1.0 {
                     num_in += 1;
