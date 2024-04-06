@@ -32,11 +32,11 @@ fn main() {
 
     let res = handles.into_iter()
         .map(|h| h.join().unwrap())
-        .fold((0, 0), |(a, b), (c, d)| (a + c, b + d));
+        .map(|(inside, outside)| {
+            (4.0 * (inside as f64)) / (inside + outside) as f64
+        })
+        .sum::<f64>();
 
-    let actual_inside = res.0 as f64;
-    let actual_outside = res.1 as f64;
-
-    let pi = 4.0 * actual_inside / (actual_inside + actual_outside);
+    let pi = res / num_cpus::get() as f64;
     println!("π ≈ {}", pi);
 }
